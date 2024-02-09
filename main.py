@@ -1,12 +1,9 @@
 import discord
 from discord.ext import commands
-import json
+import os
 
-with open("config.json", "r") as file:
-    config = json.load(file)
-
-your_user_id = config["user_id"]
-bot_token = config["bot_token"]
+your_user_id = os.getenv["user_id"]
+bot_token = os.getenv["bot_token"]
 
 intents = discord.Intents.default()
 intents.members = True  # This is necessary to track join events

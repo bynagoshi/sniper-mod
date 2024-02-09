@@ -6,8 +6,8 @@ intents.members = True  # This is necessary to track join events
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-keyword = "sn1prz"  # Replace with the keyword you want to search for in usernames
-your_user_id = 1202749558610726952  # Replace with your Discord user ID
+keyword = ""  # Replace with the keyword you want to search for in usernames
+your_user_id =   # Replace with your Discord user ID
 
 
 @bot.event
@@ -31,4 +31,4 @@ async def on_member_join(member):
 
 # Run the bot
 # Replace with your bot's token
-bot.run('MTIwNTYwMDczNjc4OTAwNDM2OA.GXm3jb.1JCPLZnOmrGG5wKqslig7giW0LKH-MvpIruk2w')
+bot.run('')

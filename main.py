@@ -1,16 +1,23 @@
 import discord
 from discord.ext import commands
 import os
+from username_detection import check_username
+from spam_detection import SpamDetector
 
-your_user_id = os.getenv["user_id"]
-bot_token = os.getenv["bot_token"]
+your_user_id = int(os.getenv("user_id"))
+bot_token = os.getenv("bot_token")
 
 intents = discord.Intents.default()
-intents.members = True  # This is necessary to track join events
+intents.members = True
+intents.messages = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-keyword = "sn1prz"
+# Initialize SpamDetector
+spam_detector = SpamDetector()
+
+# List of keywords to check
+keywords = ["anotherkeyword", "example"]
 
 
 @bot.event
@@ -19,19 +26,22 @@ async def on_ready():
     print('------')
 
 
-@bot.event
-async def on_member_join(member):
-    if keyword.lower() in member.name.lower():
-        user = bot.get_user(your_user_id)  # Get your user object
-        if user:
-            try:
-                await user.send(f"A user with the keyword '{keyword}' in their name has joined: {member.name}")
-            except discord.errors.Forbidden:
-                print(
-                    f"Could not send a message to {user.name}, they might have DMs disabled.")
-            except Exception as e:
-                print(f"An error occurred: {e}")
+# @bot.event
+# async def on_member_join(member):
+#     # Call the function from the other file
+#     await check_username(member, bot, keywords, your_user_id)
 
-# Run the bot
-# Replace with your bot's token
-bot.run('{bot_token}')
+
+@bot.event
+async def on_message(message):
+    # Avoid processing messages sent by the bot
+    if message.author == bot.user:
+        return
+
+    # Check for spam messages
+    await spam_detector.check_message(message)
+
+    # Process commands
+    await bot.process_commands(message)
+
+bot.run(bot_token)

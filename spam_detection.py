@@ -1,6 +1,7 @@
 import discord
 from collections import defaultdict
 from datetime import datetime, timedelta
+from discord.ext import commands
 import pytz
 
 
@@ -31,12 +32,24 @@ class SpamDetector:
             if not self.messages[content]:
                 del self.messages[content]
 
-    async def handle_spam(self, message_content):
-        for message in self.messages[message_content]:
+    async def handle_spam(self, message_content, channel_id):
+        spamming_users = set()
+        for message in self.messages[(channel_id, message_content)]:
+            spamming_users.add(message.author)
+
+            # Delete messages
             try:
                 await message.delete()
             except discord.errors.NotFound:
-                # Message already deleted
-                pass
+                pass  # Message already deleted
             except discord.errors.Forbidden:
                 print("Bot does not have permissions to delete messages.")
+
+        # Apply timeout to users
+        for user in spamming_users:
+            try:
+                # Timeout for 1 day
+                await user.timeout(timedelta(minutes=1440))
+                # await user.send(f"You have been timed out for 1 day due to spamming.")
+            except discord.errors.Forbidden:
+                print(f"Bot does not have permissions to timeout {user.name}.")
